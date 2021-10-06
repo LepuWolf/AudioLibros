@@ -25,7 +25,7 @@ import java.io.IOException;
  * create an instance of this fragment.
  */
 public class DetalleFragment extends Fragment
-    implements MediaPlayer.OnPreparedListener,
+        implements MediaPlayer.OnPreparedListener,
         MediaController.MediaPlayerControl,
         View.OnTouchListener
 
@@ -99,19 +99,19 @@ public class DetalleFragment extends Fragment
                 new ArrayAdapter(getActivity(),
                         android.R.layout.simple_list_item_1,
                         android.R.id.text1, generos
-                        );
+                );
 
         spinner.setAdapter(adapter);
 
-          Bundle args = getArguments();
+        Bundle args = getArguments();
 
-          if(args != null){
-               int idLibro =
-                       args.getInt(DetalleFragment.ARG_INDEX_LIBRO);
-               setInfoLibro(idLibro,layout );
-          }else{
-              setInfoLibro(0, layout);
-          }
+        if(args != null){
+            int idLibro =
+                    args.getInt(DetalleFragment.ARG_INDEX_LIBRO);
+            setInfoLibro(idLibro,layout );
+        }else{
+            setInfoLibro(0, layout);
+        }
 
 
         return layout;
@@ -128,20 +128,20 @@ public class DetalleFragment extends Fragment
         lblAutor.setText(libro.getAutor());
         imvPortada.setImageResource(libro.getRecursoImagen());
 
-        if( mediaPlayer== null){
-            mediaPlayer = new MediaPlayer();
-            mediaController = new MediaController(getActivity());
-            mediaPlayer.setOnPreparedListener(this);
-            try {
-                mediaPlayer.setDataSource(getActivity(),
-                        Uri.parse(libro.getUrl()));
-                mediaPlayer.prepareAsync();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+        if( mediaPlayer!= null){
+            mediaPlayer.release();
         }
 
+        mediaPlayer = new MediaPlayer();
+        mediaController = new MediaController(getActivity());
+        mediaPlayer.setOnPreparedListener(this);
+        try {
+            mediaPlayer.setDataSource(getActivity(),
+                    Uri.parse(libro.getUrl()));
+            mediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -154,12 +154,13 @@ public class DetalleFragment extends Fragment
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
-        mediaPlayer.start();
+
         mediaController.setMediaPlayer(this);
         mediaController.setAnchorView(
                 getView().findViewById(R.id.fragment_detalle_layout_root));
         mediaController.setEnabled(true);
         mediaController.show();
+        mediaPlayer.start();
 
 
     }
@@ -176,22 +177,22 @@ public class DetalleFragment extends Fragment
 
     @Override
     public int getDuration() {
-        return 0;
+        return mediaPlayer.getDuration();
     }
 
     @Override
     public int getCurrentPosition() {
-        return 0;
+        return mediaPlayer.getCurrentPosition();
     }
 
     @Override
     public void seekTo(int i) {
-
+        mediaPlayer.seekTo(i);
     }
 
     @Override
     public boolean isPlaying() {
-        return false;
+        return mediaPlayer.isPlaying();
     }
 
     @Override
@@ -201,17 +202,17 @@ public class DetalleFragment extends Fragment
 
     @Override
     public boolean canPause() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean canSeekBackward() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean canSeekForward() {
-        return false;
+        return true;
     }
 
     @Override
@@ -223,5 +224,12 @@ public class DetalleFragment extends Fragment
     public boolean onTouch(View view, MotionEvent motionEvent) {
         mediaController.show();
         return false;
+    }
+
+    @Override
+    public void onStop() {
+        mediaPlayer.stop();
+        mediaPlayer.release();
+        super.onStop();
     }
 }

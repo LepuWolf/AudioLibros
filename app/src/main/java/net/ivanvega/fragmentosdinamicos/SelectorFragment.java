@@ -12,10 +12,15 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -78,6 +83,24 @@ public class SelectorFragment extends Fragment {
             this.contexto = (MainActivity)context;
         }
 
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        inflater.inflate(R.menu.menu_selector, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        int id = item.getItemId();
+        if (id == R.id.menu_ultimo){
+            ((MainActivity) getActivity()).irUltimoVisiado();
+            return true;
+        }else if (id == R.id.menu_buscar){
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -150,18 +173,27 @@ public class SelectorFragment extends Fragment {
 
                                             break;
                                         case 1:
+                                            Snackbar.make(view,"Libro Insertado", Snackbar.LENGTH_INDEFINITE).show();
 
-                                            Libro.ejemplosLibros().add(
+                                           /* Libro.ejemplosLibros().add(
                                                     Libro.ejemplosLibros().get(posLibro)
                                             );
                                             miAdaptadorPersonalizado
                                                     .notifyItemInserted(
-                                                            Libro.ejemplosLibros().size()-1);
+                                                            Libro.ejemplosLibros().size()-1);*/
                                             break;
 
                                         case 2:
-                                            Libro.ejemplosLibros().remove(posLibro);
-                                            miAdaptadorPersonalizado.notifyItemRemoved(posLibro);
+                                            Snackbar.make(view,"Estas Seguro?", Snackbar.LENGTH_LONG)
+                                                    .setAction("SI", new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View view) {
+                                                            Libro.ejemplosLibros().remove(posLibro);
+                                                            miAdaptadorPersonalizado.notifyDataSetChanged();
+                                                        }
+                                                    }).show();
+                                            /*Libro.ejemplosLibros().remove(posLibro);
+                                            miAdaptadorPersonalizado.notifyItemRemoved(posLibro);*/
                                             break;
                                     }
 
@@ -181,7 +213,7 @@ public class SelectorFragment extends Fragment {
 
         recyclerViewLibros.setLayoutManager(layoutManager);
         recyclerViewLibros.setAdapter(miAdaptadorPersonalizado);
-
+        setHasOptionsMenu(true);
 
 
         return layout;
